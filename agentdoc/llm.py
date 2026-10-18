@@ -269,6 +269,7 @@ class OfflineBackend:
             return f"我没有获得可用信息来回答「{question}」。"
         lines: List[str] = []
         has_retrieval = False
+        saw_gate = False
         for r in results:
             raw = str(r.get("content", ""))
             if raw.startswith("[已落盘"):
@@ -278,8 +279,13 @@ class OfflineBackend:
             except Exception:
                 obj = None
             if isinstance(obj, dict):
+                if obj.get("gate") == "low_relevance":
+                    saw_gate = True
+                    continue
                 if obj.get("hits") is not None:
                     has_retrieval = True
+                    if not obj["hits"]:
+                        saw_gate = True
                     for h in obj["hits"][:3]:
                         lines.append(f"【{h.get('doc_id')}】{h.get('text', '')[:100]}")
                     continue
@@ -301,6 +307,8 @@ class OfflineBackend:
                                  f"情景->语义 {len(obj.get('episodic_to_semantic', []))} 条")
                     continue
             lines.append(raw[:180])
+        if not lines and saw_gate:
+            return f"知识库中没有找到与「{question}」相关的内容。"
         body = "\n".join(lines[:8]) or "（无有效内容）"
         # 纯检索类问题才加「回答「问题」」包裹；记忆类直接返回结果
         return f"回答「{question}」：\n{body}" if has_retrieval else body

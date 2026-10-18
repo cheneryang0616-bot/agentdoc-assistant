@@ -20,6 +20,8 @@ CHUNK_MAX_CHARS = 420
 CHUNK_OVERLAP = 60
 TOP_K = 5
 RRF_K = 60                     # Reciprocal Rank Fusion 常数
+# 低于此分数视为“知识库无相关内容”，用于拒答保护（0 = 关闭）
+MIN_SCORE = float(os.environ.get("AGENTDOC_MIN_SCORE", "0"))
 
 # ---- 记忆 ----
 MEMORY_HALF_LIFE_HOURS = 72.0  # 时间衰减半衰期

@@ -55,6 +55,7 @@ jobs:
           python experiments/exp3_memory_lifecycle.py
           python experiments/exp4_finetune_embedding.py
           python experiments/exp5_embedder_compare.py
+          python experiments/exp6_error_analysis.py --fixed
           python experiments/summarize.py
 
       - name: Upload results

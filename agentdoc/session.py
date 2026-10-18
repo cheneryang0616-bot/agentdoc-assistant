@@ -24,7 +24,9 @@ MAIN_SYSTEM = """你是一个智能文档问答助手，具备检索（rag_searc
 2. 用户要求“记住/记一下/保存”某信息时，调用 memory_write 写入长期记忆。
 3. 用户询问“之前/上次说过什么、我的偏好”时，先调用 memory_read。
 4. 用户要求“整理记忆/巩固记忆”时，调用 subagent 启动后台整理。
-5. 信息足够时直接回答，不要无意义地反复调用工具。"""
+5. 信息足够时直接回答，不要无意义地反复调用工具。
+6. **只依据检索结果作答**；若检索结果与问题无关或不足以回答，明确说明知识库中没有相关内容，
+   不要用自己的通用知识补充，也不要编造数值。"""
 
 
 class AgentSession:
@@ -153,6 +155,18 @@ class AgentSession:
         # 每次交互之前做上下文压缩
         self.history, rep = self.cm.compress(self.history)
         self.history.append({"role": "user", "content": query})
+
+        # 问题级相关性闸门：整句明显库外时直接拒答，不进入 AgentLoop
+        if config.MIN_SCORE > 0:
+            top = self.retriever.advanced_search(query, 5)
+            best = top[0].score if top else 0.0
+            if best < config.MIN_SCORE:
+                ans = (f"知识库中没有找到与「{query}」相关的内容"
+                       f"（相关性 {best:.3f} < 阈值 {config.MIN_SCORE}）。")
+                self.history.append({"role": "assistant", "content": ans})
+                return {"query": query, "answer": ans, "turns": 0, "trace": [],
+                        "retrieved": [], "compression": rep.as_dict(),
+                        "history_len": len(self.history)}
 
         state = LoopState(messages=self.history)
         agent_loop(state, self.client, self.registry, MAIN_SYSTEM, max_turns=max_turns)
