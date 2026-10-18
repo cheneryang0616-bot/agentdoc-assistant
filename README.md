@@ -209,12 +209,14 @@ initialize  ->  notifications/initialized  ->  tools/list  ->  tools/call
 |---|---|---|
 | offline（规则规划器） | 13/16 | 完全不会拒答，库外问题硬拼无关文档 |
 | offline + 相关性闸门 | **15/16** | 只剩“近似但无答案” |
-| deepseek-chat | 14/16 | 能识别库外，但越界用通用知识作答 |
+| deepseek-chat | 13/16 | 能识别库外，但越界用通用知识作答 |
 | deepseek + 闸门 + 约束提示 | **15/16** | 只剩“近似但无答案” |
+| deepseek + 闸门 + **答案级质检** | **16/16** | — |
 
 > 结论：**所有失败都是“越界”而不是“召回不足”**——小知识库上检索不是瓶颈，
-> 边界判断才是。相关性阈值能修掉“明显库外”，但修不掉“语义相近但没答案”，
-> 后者需要答案级 groundedness 校验。
+> 边界判断才是。实测四种检索侧信号（词面/trigram/BGE 相似度/OOV 比例）
+> 都分不开“同主题但无答案”，因此最终靠**答案级 groundedness 质检**
+> （`agentdoc/grounding.py`，`AGENTDOC_GROUNDING=1`）修到 16/16。
 
 ---
 
@@ -241,6 +243,7 @@ agentdoc-assistant/
 │   ├── memory/               # 三级记忆 / 评分 / 生命周期
 │   ├── tools/                # 工具注册表与处理器
 │   ├── context/              # 三级上下文压缩
+│   ├── grounding.py          # 答案级 groundedness 质检
 │   └── mcp/                  # MCP server + client + host（stdio，纯标准库）
 ├── data/kb/                  # 示例知识库（8 篇 Markdown）
 ├── examples/                 # 示例外部 MCP server（文件系统）

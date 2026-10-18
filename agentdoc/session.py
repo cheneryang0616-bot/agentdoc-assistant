@@ -7,6 +7,7 @@ from typing import List, Optional
 
 from . import config
 from .context import ContextManager
+from .grounding import GroundingChecker
 from .llm import LLMClient, extract_text
 from .loop import LoopState, agent_loop
 from .memory import MemoryStore
@@ -54,6 +55,7 @@ class AgentSession:
 
         # --- 上下文管理（需在注册工具前建好，供 file_read 使用） ---
         self.cm = ContextManager(budget=context_budget, client=self.client)
+        self.grounding = GroundingChecker(self.client, enabled=config.GROUNDING)
         self.history: List[dict] = []
 
         # --- 主工具表 ---
@@ -154,6 +156,7 @@ class AgentSession:
 
         # 每次交互之前做上下文压缩
         self.history, rep = self.cm.compress(self.history)
+        start = len(self.history)          # 本轮从哪开始
         self.history.append({"role": "user", "content": query})
 
         # 问题级相关性闸门：整句明显库外时直接拒答，不进入 AgentLoop
@@ -165,8 +168,8 @@ class AgentSession:
                        f"（相关性 {best:.3f} < 阈值 {config.MIN_SCORE}）。")
                 self.history.append({"role": "assistant", "content": ans})
                 return {"query": query, "answer": ans, "turns": 0, "trace": [],
-                        "retrieved": [], "compression": rep.as_dict(),
-                        "history_len": len(self.history)}
+                        "retrieved": [], "retrieved_texts": [],
+                        "compression": rep.as_dict(), "history_len": len(self.history)}
 
         state = LoopState(messages=self.history)
         agent_loop(state, self.client, self.registry, MAIN_SYSTEM, max_turns=max_turns)
@@ -174,9 +177,10 @@ class AgentSession:
 
         answer = extract_text(self.history[-1]["content"])
 
-        # 收集本轮检索到的文档（从 tool_result 解析）
+        # 只收集**本轮**检索到的文档与原文（从 tool_result 解析）
         retrieved: List[str] = []
-        for m in state.messages:
+        retrieved_texts: List[str] = []
+        for m in state.messages[start:]:
             c = m.get("content")
             if not isinstance(c, list):
                 continue
@@ -186,8 +190,16 @@ class AgentSession:
                         obj = json.loads(str(b.get("content", "")))
                         for h in obj.get("hits", []):
                             retrieved.append(h["doc_id"])
+                            if h.get("text"):
+                                retrieved_texts.append(h["text"])
                     except Exception:
                         pass
+
+        # 答案级 groundedness 质检：不合格则替换为拒答
+        grounding = None
+        answer, grounding = self.grounding.enforce(query, retrieved_texts, answer)
+        if grounding and (grounding.get("skipped") is False) and not grounding.get("ok", True):
+            self.history[-1] = {"role": "assistant", "content": answer}
 
         return {
             "query": query,
@@ -195,6 +207,8 @@ class AgentSession:
             "turns": state.turn_count,
             "trace": state.trace,
             "retrieved": retrieved,
+            "retrieved_texts": retrieved_texts,
+            "grounding": grounding,
             "compression": rep.as_dict(),
             "history_len": len(self.history),
         }

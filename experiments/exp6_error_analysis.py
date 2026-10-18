@@ -185,9 +185,12 @@ def judge(case: dict, out: dict) -> dict:
             "reason": "；".join(reasons) or "通过"}
 
 
-def run_config(tag: str, cases, embedder, min_score: float = 0.0) -> dict:
+def run_config(tag: str, cases, embedder, min_score: float = 0.0,
+               grounding: bool = False) -> dict:
     old = config.MIN_SCORE
+    old_g = config.GROUNDING
     config.MIN_SCORE = min_score
+    config.GROUNDING = grounding
     try:
         sess = AgentSession(embedder=embedder)
         rows = []
@@ -211,10 +214,11 @@ def run_config(tag: str, cases, embedder, min_score: float = 0.0) -> dict:
             print(f"  {mark} {case['id']:<3} {case['cat']:<8} {verdict['reason']}")
         n_pass = sum(r["pass"] for r in rows)
         print(f"  [{tag}] 通过 {n_pass}/{len(rows)}\n")
-        return {"config": tag, "min_score": min_score,
+        return {"config": tag, "min_score": min_score, "grounding": grounding,
                 "pass": n_pass, "total": len(rows), "rows": rows}
     finally:
         config.MIN_SCORE = old
+        config.GROUNDING = old_g
 
 
 def load_deepseek_env() -> bool:
@@ -236,6 +240,8 @@ def main() -> None:
     ap.add_argument("--llm", action="store_true", help="额外跑真实模型（需要 Key）")
     ap.add_argument("--fixed", action="store_true",
                     help="额外跑修复版（相关性阈值 0.07）")
+    ap.add_argument("--ground", action="store_true",
+                    help="额外跑答案级质检版（需要真实 LLM）")
     args = ap.parse_args()
 
     embedder = build_embedder("hash")     # 固定检索器，隔离变量
@@ -263,6 +269,12 @@ def main() -> None:
             print("配置 B+：deepseek-chat + 相关性阈值 + 约束提示")
             print("=" * 72)
             summary["deepseek+fix"] = run_config("deepseek+fix", CASES, embedder, 0.07)
+            if args.ground:
+                print("=" * 72)
+                print("配置 B++：deepseek + 闸门 + 答案级质检")
+                print("=" * 72)
+                summary["deepseek+fix+ground"] = run_config(
+                    "deepseek+fix+ground", CASES, embedder, 0.07, grounding=True)
     elif args.llm:
         print("[跳过] 未找到 DEEPSEEK_API_KEY")
 

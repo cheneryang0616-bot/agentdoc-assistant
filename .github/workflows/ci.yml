@@ -48,6 +48,9 @@ jobs:
       - name: MCP Host integration test (multi-server)
         run: python tests/test_mcp_host.py
 
+      - name: Grounding checker unit test (mock client)
+        run: python tests/test_grounding.py
+
       - name: Experiments (fully offline, no API key)
         run: |
           python experiments/exp1_agent_loop.py
