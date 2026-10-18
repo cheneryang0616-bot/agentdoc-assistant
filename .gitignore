@@ -11,3 +11,4 @@ results/embedding_W.npy
 
 # 简历/内部分享文档，不公开
 docs/
+results/mcp_memory/

@@ -9,6 +9,9 @@ python3 tests/test_core.py
 echo; echo "==== 0b. OpenAI 兼容后端集成测试（本地 mock，无需 Key）===="
 python3 tests/test_openai_backend.py
 
+echo; echo "==== 0c. MCP 集成测试（stdio）===="
+python3 tests/test_mcp.py
+
 echo; echo "==== 1. AgentLoop vs 单次 RAG ===="
 python3 experiments/exp1_agent_loop.py
 
@@ -32,5 +35,8 @@ python3 scripts/verify_backends.py
 
 echo; echo "==== 8. 交互式 Agent Demo ===="
 python3 -m agentdoc.cli --demo
+
+echo; echo "==== 9. MCP 端到端演示 ===="
+python3 scripts/mcp_demo.py
 
 echo; echo "全部完成。结果见 results/RESULTS.md"

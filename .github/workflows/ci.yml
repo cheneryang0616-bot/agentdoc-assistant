@@ -42,6 +42,9 @@ jobs:
       - name: OpenAI-compatible backend integration test (local mock)
         run: python tests/test_openai_backend.py
 
+      - name: MCP integration test (stdio)
+        run: python tests/test_mcp.py
+
       - name: Experiments (fully offline, no API key)
         run: |
           python experiments/exp1_agent_loop.py

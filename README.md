@@ -52,6 +52,7 @@ python3 -m agentdoc.cli --demo         # 内置演示：多跳 / 记忆写读 / 
 bash run_all.sh                        # 一键：单测 + 6 个实验 + 后端自检 + Demo
 
 python3 scripts/verify_backends.py     # 查看当前实际使用的嵌入/LLM 后端
+python3 scripts/mcp_demo.py           # MCP 端到端演示（stdio）
 
 # 用真实 LLM：先把 Key 写入 ~/.agentdoc.env（参考 .env.example）
 cp .env.example ~/.agentdoc.env && vim ~/.agentdoc.env
@@ -136,6 +137,26 @@ export AGENTDOC_MODEL=your-model
 - **阶段 B**：`(query, pos_doc, neg_doc)` 三元组 + margin 损失，numpy **手写反向传播**
   训练线性投影（恒等初始化，从基线出发做增量修正）。
 
+### 5.6 MCP 工具化（Model Context Protocol）
+
+把本地能力暴露为标准 MCP Server（**JSON-RPC 2.0 over stdio，纯标准库实现**），
+客户端动态发现工具后可直接接入 AgentLoop——**业务代码零改动**。
+
+```bash
+python3 scripts/mcp_demo.py            # 端到端演示
+python3 -m agentdoc.mcp.server --verbose   # 单独启动 MCP server
+```
+
+协议握手流程：
+
+```
+initialize  ->  notifications/initialized  ->  tools/list  ->  tools/call
+```
+
+暴露的工具：`rag_search` / `memory_read` / `memory_write`（带 JSON Schema）。
+演示中把本地 `rag_search` 替换为 MCP 远程工具后，多跳问题仍触发 2 次检索，
+说明 AgentLoop、工具注册表、记忆系统均无需修改。
+
 ---
 
 ## 6. 实验结果
@@ -183,11 +204,12 @@ agentdoc-assistant/
 │   ├── rag/                  # 规范化 / 分块 / 嵌入（哈希+BGE）/ MQE+HyDE 检索
 │   ├── memory/               # 三级记忆 / 评分 / 生命周期
 │   ├── tools/                # 工具注册表与处理器
-│   └── context/              # 三级上下文压缩
+│   ├── context/              # 三级上下文压缩
+│   └── mcp/                  # MCP server + client（stdio，纯标准库）
 ├── data/kb/                  # 示例知识库（8 篇 Markdown）
 ├── experiments/              # exp1~exp5 + 汇总脚本
-├── scripts/verify_backends.py# 后端自检
-├── tests/                    # 21 项单元断言 + OpenAI 兼容集成测试
+├── scripts/                   # verify_backends / run_with_llm / mcp_demo
+├── tests/                    # 单元断言 + OpenAI 兼容集成测试 + MCP 集成测试
 ├── results/                  # 实验产物
 └── run_all.sh
 ```
