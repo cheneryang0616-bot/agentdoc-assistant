@@ -53,6 +53,7 @@ bash run_all.sh                        # 一键：单测 + 6 个实验 + 后端�
 
 python3 scripts/verify_backends.py     # 查看当前实际使用的嵌入/LLM 后端
 python3 scripts/mcp_demo.py           # MCP 端到端演示（stdio）
+python3 scripts/mcp_host_demo.py      # MCP Host：连接多个外部 server
 
 # 用真实 LLM：先把 Key 写入 ~/.agentdoc.env（参考 .env.example）
 cp .env.example ~/.agentdoc.env && vim ~/.agentdoc.env
@@ -139,12 +140,18 @@ export AGENTDOC_MODEL=your-model
 
 ### 5.6 MCP 工具化（Model Context Protocol）
 
-把本地能力暴露为标准 MCP Server（**JSON-RPC 2.0 over stdio，纯标准库实现**），
-客户端动态发现工具后可直接接入 AgentLoop——**业务代码零改动**。
+**双向支持**，纯标准库实现（JSON-RPC 2.0 over stdio，不依赖官方 SDK）：
+
+| 方向 | 组件 | 作用 |
+|---|---|---|
+| **作 server** | `agentdoc/mcp/server.py` | 把自己的能力暴露给外部客户端 |
+| **作 host** | `agentdoc/mcp/host.py` | 同时连接多个外部 server，聚合工具 |
+| **单连** | `agentdoc/mcp/client.py` | 连接单个 server + 工具适配器 |
 
 ```bash
-python3 scripts/mcp_demo.py            # 端到端演示
-python3 -m agentdoc.mcp.server --verbose   # 单独启动 MCP server
+python3 scripts/mcp_demo.py          # 方向一：agentdoc 当 server
+python3 scripts/mcp_host_demo.py     # 方向二：agentdoc 当 host，连 2 个外部 server
+python3 -m agentdoc.mcp.server --verbose
 ```
 
 协议握手流程：
@@ -153,9 +160,23 @@ python3 -m agentdoc.mcp.server --verbose   # 单独启动 MCP server
 initialize  ->  notifications/initialized  ->  tools/list  ->  tools/call
 ```
 
-暴露的工具：`rag_search` / `memory_read` / `memory_write`（带 JSON Schema）。
-演示中把本地 `rag_search` 替换为 MCP 远程工具后，多跳问题仍触发 2 次检索，
-说明 AgentLoop、工具注册表、记忆系统均无需修改。
+**作 server 时**暴露 `rag_search` / `memory_read` / `memory_write`（带 JSON Schema）。
+
+**作 host 时**通过 `mcp_servers.json`（兼容 Claude Desktop 写法）管理多个 server，
+工具按 `<server>__<tool>` 命名空间聚合，避免同名冲突：
+
+```json
+{
+  "mcpServers": {
+    "agentdoc": {"command": "python3", "args": ["-m", "agentdoc.mcp.server"]},
+    "fs":       {"command": "python3", "args": ["examples/mcp_fs_server.py"]}
+  }
+}
+```
+
+实测：host 同时挂载 `agentdoc`（检索/记忆）与 `fs`（文件系统），聚合出 6 个工具；
+把 `agentdoc__rag_search` 覆盖为本地的 `rag_search` 后，多跳问题仍触发 2 次 MCP 调用——
+**AgentLoop / 工具注册表 / 记忆系统均无需修改**。
 
 ---
 
@@ -205,8 +226,9 @@ agentdoc-assistant/
 │   ├── memory/               # 三级记忆 / 评分 / 生命周期
 │   ├── tools/                # 工具注册表与处理器
 │   ├── context/              # 三级上下文压缩
-│   └── mcp/                  # MCP server + client（stdio，纯标准库）
+│   └── mcp/                  # MCP server + client + host（stdio，纯标准库）
 ├── data/kb/                  # 示例知识库（8 篇 Markdown）
+├── examples/                 # 示例外部 MCP server（文件系统）
 ├── experiments/              # exp1~exp5 + 汇总脚本
 ├── scripts/                   # verify_backends / run_with_llm / mcp_demo
 ├── tests/                    # 单元断言 + OpenAI 兼容集成测试 + MCP 集成测试

@@ -12,6 +12,9 @@ python3 tests/test_openai_backend.py
 echo; echo "==== 0c. MCP 集成测试（stdio）===="
 python3 tests/test_mcp.py
 
+echo; echo "==== 0d. MCP Host 集成测试（多 server）===="
+python3 tests/test_mcp_host.py
+
 echo; echo "==== 1. AgentLoop vs 单次 RAG ===="
 python3 experiments/exp1_agent_loop.py
 
@@ -38,5 +41,8 @@ python3 -m agentdoc.cli --demo
 
 echo; echo "==== 9. MCP 端到端演示 ===="
 python3 scripts/mcp_demo.py
+
+echo; echo "==== 10. MCP Host 演示（多 server）===="
+python3 scripts/mcp_host_demo.py
 
 echo; echo "全部完成。结果见 results/RESULTS.md"

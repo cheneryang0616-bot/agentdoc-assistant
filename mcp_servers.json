@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "agentdoc": {
+      "command": "python3",
+      "args": ["-m", "agentdoc.mcp.server", "--embedder", "hash",
+               "--memory-dir", "results/mcp_host_memory"],
+      "cwd": ".",
+      "prefix": true
+    },
+    "fs": {
+      "command": "python3",
+      "args": ["examples/mcp_fs_server.py", "--root", "data"],
+      "cwd": ".",
+      "prefix": true
+    }
+  }
+}

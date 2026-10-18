@@ -9,7 +9,8 @@
 from __future__ import annotations
 
 from .client import MCPClient, MCPToolAdapter, result_text
+from .host import MCPHost, ServerSpec
 from .server import PROTOCOL_VERSION, MCPServer
 
-__all__ = ["MCPClient", "MCPToolAdapter", "MCPServer", "PROTOCOL_VERSION",
-           "result_text"]
+__all__ = ["MCPClient", "MCPToolAdapter", "MCPServer", "MCPHost", "ServerSpec",
+           "PROTOCOL_VERSION", "result_text"]

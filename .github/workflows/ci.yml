@@ -45,6 +45,9 @@ jobs:
       - name: MCP integration test (stdio)
         run: python tests/test_mcp.py
 
+      - name: MCP Host integration test (multi-server)
+        run: python tests/test_mcp_host.py
+
       - name: Experiments (fully offline, no API key)
         run: |
           python experiments/exp1_agent_loop.py

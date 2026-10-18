@@ -1,4 +1,4 @@
-"""最小 MCP 服务端：把 rag_search / memory_read / memory_write 暴露为 MCP 工具。
+"""agentdoc MCP 服务端：把 rag_search / memory_read / memory_write 暴露为 MCP 工具。
 
 启动（stdio 传输，供 MCP 客户端拉起）：
     python3 -m agentdoc.mcp.server [--embedder hash|auto|st] [--verbose]
@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
-PROTOCOL_VERSION = "2025-06-18"
+from .base import PROTOCOL_VERSION, StdioServer
 
 TOOLS: List[Dict[str, Any]] = [
     {
@@ -55,83 +55,13 @@ TOOLS: List[Dict[str, Any]] = [
 ]
 
 
-class MCPServer:
+class MCPServer(StdioServer):
     def __init__(self, session, verbose: bool = False) -> None:
+        super().__init__({"name": "agentdoc-mcp", "version": "1.0.0"},
+                         TOOLS, self._call, verbose)
         self.sess = session
-        self.verbose = verbose
 
-    # ------------------------------------------------------------------ #
-    def log(self, *args) -> None:
-        if self.verbose:
-            print("[mcp-server]", *args, file=sys.stderr, flush=True)
-
-    def send(self, obj: Dict[str, Any]) -> None:
-        sys.stdout.write(json.dumps(obj, ensure_ascii=False) + "\n")
-        sys.stdout.flush()
-
-    def reply(self, rid: Any, result: Dict[str, Any]) -> None:
-        self.send({"jsonrpc": "2.0", "id": rid, "result": result})
-
-    def reply_error(self, rid: Any, code: int, message: str) -> None:
-        self.send({"jsonrpc": "2.0", "id": rid,
-                   "error": {"code": code, "message": message}})
-
-    # ------------------------------------------------------------------ #
-    def serve(self) -> None:
-        for line in sys.stdin:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                msg = json.loads(line)
-            except json.JSONDecodeError:
-                self.reply_error(None, -32700, "Parse error")
-                continue
-            try:
-                self.handle(msg)
-            except Exception as e:  # 任何异常都不应中断服务
-                if "id" in msg:
-                    self.reply_error(msg["id"], -32603, f"{type(e).__name__}: {e}")
-
-    def handle(self, msg: Dict[str, Any]) -> None:
-        method = msg.get("method")
-        rid = msg.get("id")
-
-        # 通知（无 id）不需要回复
-        if rid is None:
-            if method == "notifications/initialized":
-                self.log("client initialized")
-            return
-
-        if method == "initialize":
-            params = msg.get("params") or {}
-            self.reply(rid, {
-                "protocolVersion": params.get("protocolVersion") or PROTOCOL_VERSION,
-                "capabilities": {"tools": {"listChanged": False}},
-                "serverInfo": {"name": "agentdoc-mcp", "version": "1.0.0"},
-            })
-            return
-
-        if method == "ping":
-            self.reply(rid, {})
-            return
-
-        if method == "tools/list":
-            self.reply(rid, {"tools": TOOLS})
-            return
-
-        if method == "tools/call":
-            params = msg.get("params") or {}
-            name = params.get("name", "")
-            args = params.get("arguments") or {}
-            self.reply(rid, self.call_tool(name, args))
-            return
-
-        self.reply_error(rid, -32601, f"Method not found: {method}")
-
-    # ------------------------------------------------------------------ #
-    def call_tool(self, name: str, args: Dict[str, Any]) -> Dict[str, Any]:
-        self.log("tools/call", name, args)
+    def _call(self, name: str, args: Dict[str, Any]) -> Dict[str, Any]:
         try:
             if name == "rag_search":
                 hits = self.sess.retriever.advanced_search(
