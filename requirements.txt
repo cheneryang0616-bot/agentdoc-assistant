@@ -1,0 +1,17 @@
+# 核心：仅依赖 numpy（离线可跑，零网络、零 API Key）
+numpy>=1.24
+
+# ---- 可选：真实嵌入模型（BGE 中文检索）----
+# 国内安装建议：pip install -i https://pypi.tuna.tsinghua.edu.cn/simple sentence-transformers
+# sentence-transformers>=3.0
+# torch>=2.0
+# 若报 Keras3 错误：export USE_TF=0 ; 模型下载：export HF_ENDPOINT=https://hf-mirror.com
+# 默认模型：BAAI/bge-small-zh-v1.5（512 维）
+
+# ---- 可选：真实 LLM ----
+# OpenAI 兼容协议（DeepSeek / Qwen / Moonshot / Ollama / vLLM）用标准库即可，无需装包
+# Anthropic 官方 SDK：
+# anthropic>=0.40
+
+# ---- 可选：真实多模态解析（PDF/PPT/图片 -> Markdown）----
+# markitdown>=0.0.1a2

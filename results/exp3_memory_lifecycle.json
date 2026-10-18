@@ -1,0 +1,56 @@
+{
+  "report": {
+    "working_to_episodic": [
+      "mem_6dbb75a5",
+      "mem_fde42df6",
+      "mem_220ce3c5"
+    ],
+    "episodic_to_semantic": [
+      "mem_a6844592"
+    ],
+    "semantic_merged": [
+      [
+        "mem_2a1a60e4",
+        "mem_1f326b81",
+        0.605
+      ]
+    ],
+    "stats_after": {
+      "working": 1,
+      "episodic": 4,
+      "semantic": 2
+    }
+  },
+  "decay_curve": [
+    {
+      "age_hours": 0,
+      "decay": 1.0
+    },
+    {
+      "age_hours": 12,
+      "decay": 0.8909
+    },
+    {
+      "age_hours": 24,
+      "decay": 0.7937
+    },
+    {
+      "age_hours": 48,
+      "decay": 0.63
+    },
+    {
+      "age_hours": 72,
+      "decay": 0.5
+    },
+    {
+      "age_hours": 144,
+      "decay": 0.25
+    },
+    {
+      "age_hours": 336,
+      "decay": 0.0394
+    }
+  ],
+  "promote_threshold": 0.6,
+  "merge_threshold": 0.45
+}

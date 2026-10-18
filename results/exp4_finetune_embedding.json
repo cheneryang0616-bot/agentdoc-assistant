@@ -1,0 +1,45 @@
+{
+  "n_queries": 64,
+  "judge_agreement": 0.8281,
+  "aligned_accuracy": 1.0,
+  "n_bad_cases": 11,
+  "n_fixed": 11,
+  "train_size": 58,
+  "test_size": 6,
+  "n_triplets": 58,
+  "proj_dim": 1024,
+  "margin": 0.3,
+  "epochs": 60,
+  "loss_first": 0.1541,
+  "loss_last": 0.0,
+  "test_recall_before": {
+    "1": 0.8333,
+    "3": 1.0,
+    "5": 1.0
+  },
+  "test_recall_after": {
+    "1": 0.8333,
+    "3": 1.0,
+    "5": 1.0
+  },
+  "all_recall_before": {
+    "1": 0.8281,
+    "3": 0.9531,
+    "5": 0.9844
+  },
+  "all_recall_after": {
+    "1": 0.9688,
+    "3": 1.0,
+    "5": 1.0
+  },
+  "cv5_recall_before": {
+    "1": 0.8295,
+    "3": 0.9538,
+    "5": 0.9846
+  },
+  "cv5_recall_after": {
+    "1": 0.8615,
+    "3": 0.9692,
+    "5": 0.9692
+  }
+}

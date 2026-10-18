@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.agentdoc.env
+.DS_Store
+results/offload/
+results/memory/
+results/memory_demo/
+results/embedding_W.npy
+
+# 简历/内部分享文档，不公开
+docs/

@@ -1,0 +1,49 @@
+{
+  "rows": [
+    {
+      "scenario": "L1 落盘",
+      "name": "L1 落盘",
+      "offload_chars": 400,
+      "n_turns": 6,
+      "result_chars": 1600,
+      "qa_len": 40,
+      "before_tokens": 19218,
+      "after_tokens": 1242,
+      "ratio": 0.0646,
+      "budget": 2600,
+      "l1_offloaded": 6,
+      "l2_placeholder_turns": 0,
+      "l3_triggered": false
+    },
+    {
+      "scenario": "L2 占位",
+      "name": "L2 占位",
+      "offload_chars": 1000000000,
+      "n_turns": 20,
+      "result_chars": 260,
+      "qa_len": 120,
+      "before_tokens": 15713,
+      "after_tokens": 909,
+      "ratio": 0.0579,
+      "budget": 2600,
+      "l1_offloaded": 0,
+      "l2_placeholder_turns": 36,
+      "l3_triggered": true
+    },
+    {
+      "scenario": "L3 全量",
+      "name": "L3 全量",
+      "offload_chars": 1000000000,
+      "n_turns": 4,
+      "result_chars": 12000,
+      "qa_len": 40,
+      "before_tokens": 90840,
+      "after_tokens": 762,
+      "ratio": 0.0084,
+      "budget": 2600,
+      "l1_offloaded": 0,
+      "l2_placeholder_turns": 4,
+      "l3_triggered": true
+    }
+  ]
+}

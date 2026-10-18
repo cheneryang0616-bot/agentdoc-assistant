@@ -1,0 +1,179 @@
+{
+  "by_embedder": {
+    "hash": {
+      "embedder": "hashing",
+      "dim": 1024,
+      "n_questions": 4,
+      "avg_one_shot_coverage": 0.875,
+      "avg_agent_loop_coverage": 1.0,
+      "improvement": 0.125,
+      "rows": [
+        {
+          "query": "JVM 是什么？它在生产环境中有哪些典型应用场景？",
+          "expected": [
+            "jvm_application",
+            "jvm_concept"
+          ],
+          "one_shot_docs": [
+            "jvm_application",
+            "python_gil"
+          ],
+          "one_shot_coverage": 0.5,
+          "agent_loop_turns": 2,
+          "agent_loop_docs": [
+            "jvm_application",
+            "jvm_concept",
+            "python_gil"
+          ],
+          "agent_loop_coverage": 1.0
+        },
+        {
+          "query": "Python 的 GIL 是什么？Java 的线程模型又是怎样的？",
+          "expected": [
+            "java_thread",
+            "python_gil"
+          ],
+          "one_shot_docs": [
+            "java_thread",
+            "python_gil"
+          ],
+          "one_shot_coverage": 1.0,
+          "agent_loop_turns": 2,
+          "agent_loop_docs": [
+            "java_thread",
+            "jvm_concept",
+            "python_gc",
+            "python_gil"
+          ],
+          "agent_loop_coverage": 1.0
+        },
+        {
+          "query": "RAG 的基本流程是什么？Agent 是如何定义的？",
+          "expected": [
+            "agent_intro",
+            "rag_intro"
+          ],
+          "one_shot_docs": [
+            "agent_intro",
+            "rag_intro"
+          ],
+          "one_shot_coverage": 1.0,
+          "agent_loop_turns": 2,
+          "agent_loop_docs": [
+            "agent_intro",
+            "jvm_application",
+            "jvm_concept",
+            "python_gil",
+            "rag_intro"
+          ],
+          "agent_loop_coverage": 1.0
+        },
+        {
+          "query": "JVM 的垃圾回收机制如何？Python 的垃圾回收又怎样？",
+          "expected": [
+            "jvm_gc",
+            "python_gc"
+          ],
+          "one_shot_docs": [
+            "jvm_gc",
+            "python_gc"
+          ],
+          "one_shot_coverage": 1.0,
+          "agent_loop_turns": 2,
+          "agent_loop_docs": [
+            "jvm_gc",
+            "python_gc"
+          ],
+          "agent_loop_coverage": 1.0
+        }
+      ]
+    },
+    "st": {
+      "embedder": "sentence-transformers",
+      "dim": 512,
+      "n_questions": 4,
+      "avg_one_shot_coverage": 1.0,
+      "avg_agent_loop_coverage": 1.0,
+      "improvement": 0.0,
+      "rows": [
+        {
+          "query": "JVM 是什么？它在生产环境中有哪些典型应用场景？",
+          "expected": [
+            "jvm_application",
+            "jvm_concept"
+          ],
+          "one_shot_docs": [
+            "jvm_application",
+            "jvm_concept"
+          ],
+          "one_shot_coverage": 1.0,
+          "agent_loop_turns": 2,
+          "agent_loop_docs": [
+            "java_thread",
+            "jvm_application",
+            "jvm_concept"
+          ],
+          "agent_loop_coverage": 1.0
+        },
+        {
+          "query": "Python 的 GIL 是什么？Java 的线程模型又是怎样的？",
+          "expected": [
+            "java_thread",
+            "python_gil"
+          ],
+          "one_shot_docs": [
+            "java_thread",
+            "python_gil"
+          ],
+          "one_shot_coverage": 1.0,
+          "agent_loop_turns": 2,
+          "agent_loop_docs": [
+            "java_thread",
+            "jvm_concept",
+            "python_gc",
+            "python_gil"
+          ],
+          "agent_loop_coverage": 1.0
+        },
+        {
+          "query": "RAG 的基本流程是什么？Agent 是如何定义的？",
+          "expected": [
+            "agent_intro",
+            "rag_intro"
+          ],
+          "one_shot_docs": [
+            "agent_intro",
+            "rag_intro"
+          ],
+          "one_shot_coverage": 1.0,
+          "agent_loop_turns": 2,
+          "agent_loop_docs": [
+            "agent_intro",
+            "jvm_concept",
+            "python_gil",
+            "rag_intro"
+          ],
+          "agent_loop_coverage": 1.0
+        },
+        {
+          "query": "JVM 的垃圾回收机制如何？Python 的垃圾回收又怎样？",
+          "expected": [
+            "jvm_gc",
+            "python_gc"
+          ],
+          "one_shot_docs": [
+            "jvm_gc",
+            "python_gc"
+          ],
+          "one_shot_coverage": 1.0,
+          "agent_loop_turns": 2,
+          "agent_loop_docs": [
+            "jvm_gc",
+            "python_gc"
+          ],
+          "agent_loop_coverage": 1.0
+        }
+      ]
+    }
+  }
+}
