@@ -1,5 +1,7 @@
 # agentdoc —— 智能文档问答 Agent（方案复现工程）
 
+[![CI](https://github.com/cheneryang0616-bot/agentdoc-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/cheneryang0616-bot/agentdoc-assistant/actions/workflows/ci.yml)
+
 > 一个可**零网络、零 API Key** 跑通，也**可一键接入真实嵌入模型与真实 LLM** 的工程项目，
 > 复现《Agent开发项目》方案中的 **AgentLoop / 多级记忆 / 三级上下文压缩 / SubAgent 记忆整理 / RAG 微调**。
 > 环境：Python 3.9+、numpy；真实模型为可选增强。
@@ -189,11 +191,3 @@ agentdoc-assistant/
 ├── results/                  # 实验产物
 └── run_all.sh
 ```
-
----
-
-## 9. 面试可讲的三点
-
-1. **"把 pipeline 讲成 loop"**：线性 RAG 答不了多跳，AgentLoop 如何解决，代价是什么。
-2. **"上下文是稀缺资源"**：三级压缩的**成本递增**设计，L1 落盘 + `file_read` 回读。
-3. **"记忆会污染"**：只写不清必然膨胀，SubAgent + 生命周期阈值把整理从主链路剥离到后台。
